@@ -1,138 +1,109 @@
-'use client';
-import { Question } from "../types/types";
-import { useState } from "react";
+"use client";
 
-const questions:Question[] = [
-  {
-	id: "1",
-	name: "favorite_color",
-	question: "What is your favorite color?",
-	options: ["Red", "Blue", "Green", "Yellow"],
-	inputType: "radio",
-  },
-  {
-	id: "2",
-	name: "hobby",
-	question: "What is your favorite hobby?",
-	options: ["Reading", "Traveling", "Cooking", "Sports", "Other"],
-	inputType: "checkbox",
-  },
-   {
-	id: "3",
-	name: "name",
-	question: "What is your Name?",
-	inputType: "text",
-  },
-];
+import { useForm } from "react-hook-form";
+import { useMemo } from "react";
+import { spazaQuestions } from "@/app/spazaHub-questions/company-questions";
 
-export function Questionaire() {
-	const [formState, setFormState] = useState<{ [key: string]: string[] }>({});
-	const [otherAnswers, setOtherAnswers] = useState<{ [key: string]: string }>({});
+export function Questionnaire() {
+  
+	// set default values for the form
+	const defaultValues = useMemo(() => {
+		const dv: Record<string, any> = {};
+		spazaQuestions.forEach((q) => {
+			if (q.inputType === "checkbox") dv[q.name] = []; // important
+			else dv[q.name] = "";
+		});
+		return dv;
+	}, []);
+	
+	const { register, handleSubmit, watch } = useForm({ defaultValues });
+	const watched = watch();
 
-	const handleChange = (qName: string, option: string, inputType: string) => {
-  setFormState((prev) => {
-	if (inputType === "text") {
-		return {
-			...prev,
-			[qName]: [option],
-		}
-	}
-    if (inputType === "radio") {
-      return {
-        ...prev,
-        [qName]: [option], // Only one option selected for radio
-      };
-    } else {
-      const prevOptions = prev[qName] || [];
-      return {
-        ...prev,
-        [qName]: prevOptions.includes(option)
-          ? prevOptions.filter((o) => o !== option)
-          : [...prevOptions, option],
-      };
-    }
-  });
+	 // Helper that safely checks whether "Other" is selected for a given field
+	const isOtherSelected = (fieldName: string) => {
+		const val = watched[fieldName];
+		if (!val) return false;
+		if (Array.isArray(val)) return val.includes("Other"); // checkbox group
+		if (typeof val === "string") return val === "Other"; // radio / text
+		return false;
 	};
 
-	const handleSubmit = (e: React.FormEvent) => {
-	e.preventDefault();
-	const result = { ...formState };
-  // Replace "Other" with the custom answer if provided
-  Object.keys(result).forEach((key) => {
-    if (
-		result[key]?.includes("Other") && 
-		otherAnswers[key]
-	) {
-      result[key] = result[key].map((val) =>
-        val === "Other" ? otherAnswers[key] : val
-      );
-    }
-  });
-  console.log(result);
+  	  const onSubmit = (data: any) => {
+    // Replace "Other" with the custom text from fieldname_other if present
+    Object.keys(data).forEach((key) => {
+      if (Array.isArray(data[key]) && data[key].includes("Other") && data[`${key}_other`]) {
+        data[key] = data[key].map((v: string) => (v === "Other" ? data[`${key}_other`] : v));
+        delete data[`${key}_other`];
+      }
+      // Optionally handle radio fields that might be "Other" too:
+      if (typeof data[key] === "string" && data[key] === "Other" && data[`${key}_other`]) {
+        data[key] = data[`${key}_other`];
+        delete data[`${key}_other`];
+      }
+    });
+
+    console.log("Final data:", data);
+    // submit to your API / Supabase here
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8 max-w-2xl mx-auto p-6">
+      {spazaQuestions.map((q) => (
+        <div key={q.id} className="flex flex-col gap-2">
+          <label className="font-medium">{q.label}</label>
+
+          {q.inputType === "text" && (
+            <input
+              {...register(q.name)}
+              type="text"
+              className="h-10 px-2 border border-gray-300 rounded"
+            />
+          )}
+
+          {q.inputType === "radio" &&
+            q.options?.map((option) => (
+              <label key={option} className="inline-flex items-center gap-2">
+                <input
+                  type="radio"
+                  value={option}
+                  {...register(q.name)}
+                  className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                />
+                {option}
+              </label>
+            ))}
+
+          {q.inputType === "checkbox" &&
+            q.options?.map((option) => (
+              <div key={option} className="flex flex-col gap-1">
+                <label className="inline-flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    value={option}
+                    {...register(q.name)}
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                  />
+                  {option}
+                </label>
+
+                {/* show free-text when "Other" is selected (safe check) */}
+                {option === "Other" && isOtherSelected(q.name) && (
+                  <input
+                    type="text"
+                    placeholder="Please specify"
+                    {...register(`${q.name}_other`)}
+                    className="ml-6 px-2 py-1 border border-gray-300 rounded"
+                  />
+                )}
+              </div>
+            ))}
+        </div>
+      ))}
+
+      <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        Submit
+      </button>
+    </form>
+  );
 }
 
-	return (
-	<div>
-		<form onSubmit={handleSubmit} className="flex flex-col gap-6">
-			{questions.map((q) => (
-				<div key={q.id} className="flex flex-col gap-2">
-					<label className="font-medium">{q.question}</label>
-					<div className="flex flex-col gap-1">
-						{q.inputType === "text" ? (
-							<input
-								type="text"
-								name={q.name}
-								value={formState[q.name]?.[0] || ""}
-								onChange={(e) =>
-									setFormState((prev) => ({
-										...prev,
-										[q.name]: [e.target.value],
-									}))
-								}
-								className="h-10 px-2 border border-gray-300 rounded"
-							/>
-						) : (
-						q.options?.map((option) => (
-						<div key={option}>
-							<div className="flex flex-col items-center gap-2">
-							<label className="inline-flex items-center gap-2">
-							<input
-								type={q.inputType}
-								name={q.name}
-								value={option}
-								checked={formState[q.name]?.includes(option) || false}
-								onChange={() => handleChange(q.name, option, q.inputType)}
-								className="h-4 w-4 text-blue-600 border-gray-300 rounded"
-							/>
-							{option}
-							</label>
-							{option === "Other" && formState[q.name]?.includes("Other") && (
-							<input
-								type="text"
-								placeholder="Please specify"
-								value={otherAnswers[q.name] || ""}
-								onChange={(e) =>
-								setOtherAnswers((prev) => ({
-									...prev,
-									[q.name]: e.target.value,
-								}))
-								}
-								className="ml-2 px-2 py-1 border border-gray-300 rounded"
-							/>
-							)}
-							</div>
-						</div>
-						)))}
-					</div>
-				</div>
-			))}
-			<button
-				type="submit"
-				className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-			>
-				Submit
-			</button>
-			</form>
-	</div>
-	);
-};

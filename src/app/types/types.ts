@@ -1,7 +1,9 @@
 export type Question = {
   id: string;
+  section: string;
   name: string;
-  question: string;
+  label: string;
   options?: string[];
   inputType: "checkbox" | "radio" | "text"; 
+  required?: boolean;
 };
