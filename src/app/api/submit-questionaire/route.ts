@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { supabase } from "@/app/lib/superbaseClient";
 
 export async function POST(req: Request) {
+  console.log("Received request:", req);
   try {
     const body = await req.json();
 

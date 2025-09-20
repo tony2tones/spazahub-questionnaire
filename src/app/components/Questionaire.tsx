@@ -1,10 +1,16 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { Form, useForm } from "react-hook-form";
 import { useMemo } from "react";
-import { spazaQuestions } from "@/app/spazaHub-questions/company-questions";
+import { Question } from "../types/types";
+import { supabase } from "../lib/superbaseClient";
 
-export function Questionnaire() {
+type QuestionProp = {
+  question: Question
+};
+
+export function Questionnaire({spazaQuestions}: {spazaQuestions: Question[]}) {
+  
   
   // set default values for the form
 	const defaultValues = useMemo(() => {
@@ -14,9 +20,9 @@ export function Questionnaire() {
 			else dv[q.name] = "";
 		});
 		return dv;
-	}, []);
+	}, [spazaQuestions]);
 	
-  const { register, handleSubmit, watch } = useForm({ defaultValues });
+  const { register, handleSubmit, watch, reset } = useForm({ defaultValues });
   const watched = watch();
 
   const totalQuestions = spazaQuestions.length;
@@ -35,48 +41,51 @@ export function Questionnaire() {
 		return false;
 	};
 
-  	  const onSubmit = async (data: Record<string, unknown>) => {
+  	  const onSubmit = async (answers: Record<string, unknown>) => {
     // Replace "Other" with the custom text from fieldname_other if present
-    Object.keys(data).forEach((key) => {
-      if (Array.isArray(data[key]) && data[key].includes("Other") && data[`${key}_other`]) {
-        data[key] = data[key].map((v: string) => (v === "Other" ? data[`${key}_other`] : v));
-        delete data[`${key}_other`];
+    Object.keys(answers).forEach((key) => {
+      if (Array.isArray(answers[key]) && answers[key].includes("Other") && answers[`${key}_other`]) {
+        answers[key] = answers[key].map((v: string) => (v === "Other" ? answers[`${key}_other`] : v));
+        delete answers[`${key}_other`];
       }
       // Optionally handle radio fields that might be "Other" too:
-      if (typeof data[key] === "string" && data[key] === "Other" && data[`${key}_other`]) {
-        data[key] = data[`${key}_other`];
-        delete data[`${key}_other`];
+      if (typeof answers[key] === "string" && answers[key] === "Other" && answers[`${key}_other`]) {
+        answers[key] = answers[`${key}_other`];
+        delete answers[`${key}_other`];
       }
     });
 
-  try {
-    const res = await fetch("/api/submit-questionnaire", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-
-    const result = await res.json();
-    if (result.error) {
-      console.error("Error submitting:", result.error);
-      alert("❌ Submission failed!");
-    } else {
-      console.log("✅ Submitted:", result);
-      alert("✅ Thank you! Form submitted.");
+    const submissionJson = {
+  questionnaire_type: "spaza", // or whatever type you want
+  ...answers
     }
+
+  try {
+    const { error } = await supabase
+  .from("questionnaire_submissions")
+  .insert([{ full_response: submissionJson }]);
+  reset();
+
+
+  if(error) {
+    console.error("Supabase insert error:", error);
+    alert("❌ Something went wrong.");
+    return;
+  }
+
   } catch (err) {
     console.error("Request error:", err);
     alert("❌ Something went wrong.");
   }
 
 
-    console.log("Final data:", data);
+    console.log("Final data:", answers);
     // submit to your API / Supabase here
   };
 
   return (
     <>
-    <div className="font-sans items-center justify-items-center p-8 pt-12 relative">
+    <div className="font-sans items-center justify-items-center p-4 relative">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8 max-w-2xl mx-auto p-6">
         {spazaQuestions.map((q) => (
           <div key={q.id} className="flex flex-col gap-2">
@@ -86,6 +95,7 @@ export function Questionnaire() {
               <input
                 {...register(q.name)}
                 type="text"
+                required={q.required}
                 className="h-10 px-2 border border-gray-300 rounded"
               />
             )}
@@ -96,6 +106,7 @@ export function Questionnaire() {
                   <input
                     type="radio"
                     value={option}
+                    required={q.required}
                     {...register(q.name)}
                     className="h-4 w-4 text-blue-600 border-gray-300 rounded"
                   />
@@ -110,6 +121,7 @@ export function Questionnaire() {
                     <input
                       type="checkbox"
                       value={option}
+                      required={q.required}
                       {...register(q.name)}
                       className="h-4 w-4 text-blue-600 border-gray-300 rounded"
                     />
@@ -120,6 +132,7 @@ export function Questionnaire() {
                   {option === "Other" && isOtherSelected(q.name) && (
                     <input
                       type="text"
+                      required={q.required}
                       placeholder="Please specify"
                       {...register(`${q.name}_other`)}
                       className="ml-6 px-2 py-1 border border-gray-300 rounded"
@@ -130,13 +143,15 @@ export function Questionnaire() {
           </div>
         ))}
 
-        <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        // disabled={answeredQuestions === totalQuestions}
+        >
           Submit
         </button>
       </form>
     </div>
-    <div className="fixed bottom-3 right-3 text-center mb-8  border text-gray-600 bg-green-500 rounded px-4 py-2 shadow-lg">
-      <p className="p-5">
+    <div className="fixed top-3 right-3 text-center mb-8  border text-gray-600 bg-green-500 rounded px-4 py-2 shadow-lg">
+      <p >
         Progress: {answeredQuestions} / {totalQuestions} answered
       </p>
     </div>
