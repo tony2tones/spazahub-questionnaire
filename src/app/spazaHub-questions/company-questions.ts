@@ -1,7 +1,7 @@
 // spazaQuestions.ts
 import { Question } from "@/app/types/types";
 
-export const spazaQuestions: Question[] = [
+export const SpazaCompanyQuestions: Question[] = [
   {
     id: "1",
     section: "Basic Information",
