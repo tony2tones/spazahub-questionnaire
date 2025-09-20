@@ -8,7 +8,7 @@ export function Questionnaire() {
   
 	// set default values for the form
 	const defaultValues = useMemo(() => {
-		const dv: Record<string, any> = {};
+		const dv: Record<string, unknown> = {};
 		spazaQuestions.forEach((q) => {
 			if (q.inputType === "checkbox") dv[q.name] = []; // important
 			else dv[q.name] = "";
@@ -28,7 +28,7 @@ export function Questionnaire() {
 		return false;
 	};
 
-  	  const onSubmit = (data: any) => {
+  	  const onSubmit = async (data: Record<string, unknown>) => {
     // Replace "Other" with the custom text from fieldname_other if present
     Object.keys(data).forEach((key) => {
       if (Array.isArray(data[key]) && data[key].includes("Other") && data[`${key}_other`]) {
@@ -41,6 +41,27 @@ export function Questionnaire() {
         delete data[`${key}_other`];
       }
     });
+
+  try {
+    const res = await fetch("/api/submit-questionnaire", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const result = await res.json();
+    if (result.error) {
+      console.error("Error submitting:", result.error);
+      alert("❌ Submission failed!");
+    } else {
+      console.log("✅ Submitted:", result);
+      alert("✅ Thank you! Form submitted.");
+    }
+  } catch (err) {
+    console.error("Request error:", err);
+    alert("❌ Something went wrong.");
+  }
+
 
     console.log("Final data:", data);
     // submit to your API / Supabase here
