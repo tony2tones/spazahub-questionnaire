@@ -38,7 +38,7 @@ export function Questionnaire({spazaQuestions}: {spazaQuestions: Question[]}) {
 		return false;
 	};
 
-  	  const onSubmit = async (answers: Record<string, unknown>) => {
+  	const onSubmit = async (answers: Record<string, unknown>) => {
     // Replace "Other" with the custom text from fieldname_other if present
     Object.keys(answers).forEach((key) => {
       if (Array.isArray(answers[key]) && answers[key].includes("Other") && answers[`${key}_other`]) {
@@ -53,16 +53,16 @@ export function Questionnaire({spazaQuestions}: {spazaQuestions: Question[]}) {
     });
 
     const submissionJson = {
-  questionnaire_type: "spaza", // or whatever type you want
-  ...answers
+      questionnaire_type: "spaza", // or whatever type you want
+      ...answers
     }
 
   try {
     const { error } = await supabase
-  .from("questionnaire_submissions")
-  .insert([{ full_response: submissionJson }]);
-  reset();
-  setFormSubmitted(true);
+    .from("questionnaire_submissions")
+    .insert([{ full_response: submissionJson }]);
+    reset();
+    setFormSubmitted(true);
 
   toast.success('Form submitted, thank you!');
 
@@ -77,7 +77,6 @@ export function Questionnaire({spazaQuestions}: {spazaQuestions: Question[]}) {
     console.error("Request error:", err);
     alert("❌ Something went wrong.");
   }
-
 
     console.log("Final data:", answers);
     // submit to your API / Supabase here
