@@ -150,7 +150,7 @@ export function Questionnaire({spazaQuestions}: {spazaQuestions: Question[]}) {
         </button>
       </form>
     </div>
-    <div className="fixed top-3 right-3 text-center mb-8  border text-gray-600 bg-green-500 rounded px-4 py-2 shadow-lg">
+    <div className="fixed top-14 right-3 text-center mb-8  border text-gray-600 bg-green-500 rounded px-4 py-2 shadow-lg">
       <p >
         Progress: {answeredQuestions} / {totalQuestions} answered
       </p>

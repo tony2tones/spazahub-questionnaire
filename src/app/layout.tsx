@@ -31,7 +31,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-            <Link href="/" className="fixed bottom-3 left-3 bg-green-500 text-black hover:bg-green-600 rounded">
+            <Link href="/" className="fixed top-3 left-3 bg-green-500 text-black hover:bg-green-600 rounded">
           <div className=" text-center border text-gray-600 px-1 py-1 shadow-lg">
                 Home
           </div>
