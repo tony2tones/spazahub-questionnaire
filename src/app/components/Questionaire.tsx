@@ -2,13 +2,13 @@
 
 import { toast } from 'react-hot-toast';
 import { useForm } from "react-hook-form";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Question } from "../types";
 import { supabase } from "../lib/superbaseClient";
 
 export function Questionnaire({spazaQuestions}: {spazaQuestions: Question[]}) {
   
-  
+  const [formSubmitted, setFormSubmitted] = useState(false);
   // set default values for the form
 	const defaultValues = useMemo(() => {
     const dv: Record<string, unknown> = {};
@@ -62,7 +62,9 @@ export function Questionnaire({spazaQuestions}: {spazaQuestions: Question[]}) {
   .from("questionnaire_submissions")
   .insert([{ full_response: submissionJson }]);
   reset();
-  toast.success('Form submitted, thank you!')
+  setFormSubmitted(true);
+
+  toast.success('Form submitted, thank you!');
 
 
   if(error) {
@@ -84,6 +86,12 @@ export function Questionnaire({spazaQuestions}: {spazaQuestions: Question[]}) {
   return (
     <>
     <div className="font-sans items-center justify-items-center p-4 relative">
+      {formSubmitted && (
+        <div className="mb-4 p-4 bg-green-100 text-green-800 border border-green-300 rounded">
+          Thank you for submitting the questionnaire!
+        </div>
+      )}
+      {!formSubmitted && (
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8 max-w-2xl mx-auto p-6">
         {spazaQuestions.map((q) => (
           <div key={q.id} className="flex flex-col gap-2">
@@ -147,6 +155,7 @@ export function Questionnaire({spazaQuestions}: {spazaQuestions: Question[]}) {
           Submit
         </button>
       </form>
+      )}
     </div>
     <div className="fixed top-14 right-3 text-center mb-8  border text-gray-600 bg-green-500 rounded px-4 py-2 shadow-lg">
       <p>
