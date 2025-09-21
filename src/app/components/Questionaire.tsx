@@ -1,13 +1,10 @@
 "use client";
 
-import { Form, useForm } from "react-hook-form";
+import { toast } from 'react-hot-toast';
+import { useForm } from "react-hook-form";
 import { useMemo } from "react";
 import { Question } from "../types";
 import { supabase } from "../lib/superbaseClient";
-
-type QuestionProp = {
-  question: Question
-};
 
 export function Questionnaire({spazaQuestions}: {spazaQuestions: Question[]}) {
   
@@ -65,6 +62,7 @@ export function Questionnaire({spazaQuestions}: {spazaQuestions: Question[]}) {
   .from("questionnaire_submissions")
   .insert([{ full_response: submissionJson }]);
   reset();
+  toast.success('Form submitted, thank you!')
 
 
   if(error) {
@@ -151,7 +149,7 @@ export function Questionnaire({spazaQuestions}: {spazaQuestions: Question[]}) {
       </form>
     </div>
     <div className="fixed top-14 right-3 text-center mb-8  border text-gray-600 bg-green-500 rounded px-4 py-2 shadow-lg">
-      <p >
+      <p>
         Progress: {answeredQuestions} / {totalQuestions} answered
       </p>
     </div>
