@@ -1,5 +1,5 @@
 // spazaQuestions.ts
-import { Question } from "@/app/types/types";
+import { Question } from "@/app/types";
 
 export const SpazaCompanyQuestions: Question[] = [
   {

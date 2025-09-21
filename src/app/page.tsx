@@ -9,9 +9,17 @@ export default function Home() {
 <hr className="border-t border-white my-4" />
           <div>
             <h2>Where to start</h2>
-            <Link href="/company-questions" className="text-blue-500 underline">
-              Go to Company Questions
-            </Link>
+            <div className="flex flex-col gap-3">
+              <Link href="/company-questions" className="p-4 bg-green-500 text-black rounded hover:bg-green-600">
+                Go to Company Questions
+              </Link>
+              <Link href="/registration-questions" className="p-4 bg-green-500 text-black rounded hover:bg-green-600">
+                Go to Registration Questions
+              </Link>
+               <Link href="/supplier-questions" className="p-4 bg-green-500 text-black rounded hover:bg-green-600">
+                Are you a supplier? Go to Supplier Questions
+              </Link>
+            </div>
           </div>
       </main>
   );

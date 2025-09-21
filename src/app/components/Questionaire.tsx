@@ -2,7 +2,7 @@
 
 import { Form, useForm } from "react-hook-form";
 import { useMemo } from "react";
-import { Question } from "../types/types";
+import { Question } from "../types";
 import { supabase } from "../lib/superbaseClient";
 
 type QuestionProp = {
