@@ -13,9 +13,6 @@ export default function Home() {
               <Link href="/company-questions" className="p-4 bg-green-500 text-black rounded hover:bg-green-600">
                 Go to Company Questions
               </Link>
-              <Link href="/registration-questions" className="p-4 bg-green-500 text-black rounded hover:bg-green-600">
-                Go to Registration Questions
-              </Link>
                <Link href="/supplier-questions" className="p-4 bg-green-500 text-black rounded hover:bg-green-600">
                 Are you a supplier? Go to Supplier Questions
               </Link>
