@@ -10,9 +10,9 @@ export default function Home() {
           Welcome to the{" "}
                   <span className="flex items-center whitespace-nowrap">
           Spaza<span className="text-green-500">Hub</span>
-          <CartIcon width={40} height={40} color="#00c950" />
+          <CartIcon width={70} height={70} color="#00c950" />
         </span>
-          <h1>Questionnaire</h1>
+          Questionnaire
         </h1>
       </div>
 
@@ -31,12 +31,12 @@ export default function Home() {
           >
             Go to Company Questions
           </Link>
-          {/* <Link
+          <Link
             href="/supplier-questions"
             className="p-3 sm:p-4 bg-green-500 text-black rounded hover:bg-green-600 transition"
           >
-            Are you a supplier? Go to Supplier Questions
-          </Link> */}
+            Go to Supplier and Stock Questions
+          </Link>
         </div>
       </div>
     </section>
