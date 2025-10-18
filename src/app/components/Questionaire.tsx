@@ -2,7 +2,7 @@
 
 import { toast } from 'react-hot-toast';
 import { useForm } from "react-hook-form";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Question } from "../types";
 import { supabase } from "../lib/superbaseClient";
@@ -11,8 +11,8 @@ import { useQuestionnaireStore } from "@/app/store/questionnaire";
 interface QuestionnaireProps {
   spazaQuestions: Question[];
   questionnaireType: 'company' | 'registration' | 'supplier';
-  nextStepUrl?: string; // URL to navigate to after completion
-  isLinkedQuestionnaire?: boolean; // true for company+registration combo
+  nextStepUrl?: string;
+  isLinkedQuestionnaire?: boolean;
 }
 
 export function Questionnaire({
@@ -23,8 +23,8 @@ export function Questionnaire({
 }: QuestionnaireProps) {
   
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   
-  // Zustand store hooks
   const { 
     setRecordId, 
     getRecordId,
@@ -35,11 +35,15 @@ export function Questionnaire({
     getCompanyData
   } = useQuestionnaireStore();
   
-  // set default values for the form
+  // Mount effect
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  
   const defaultValues = useMemo(() => {
     const dv: Record<string, unknown> = {};
     spazaQuestions.forEach((q) => {
-      if (q.inputType === "checkbox") dv[q.name] = []; // important
+      if (q.inputType === "checkbox") dv[q.name] = [];
       else dv[q.name] = "";
     });
     return dv;
@@ -55,23 +59,20 @@ export function Questionnaire({
         return !!val && val !== "";
     }).length;
 
-  // Helper that safely checks whether "Other" is selected for a given field
   const isOtherSelected = (fieldName: string) => {
     const val = watched[fieldName];
     if (!val) return false;
-    if (Array.isArray(val)) return val.includes("Other"); // checkbox group
-    if (typeof val === "string") return val === "Other"; // radio / text
+    if (Array.isArray(val)) return val.includes("Other");
+    if (typeof val === "string") return val === "Other";
     return false;
   };
 
   const onSubmit = async (answers: Record<string, unknown>) => {
-    // Replace "Other" with the custom text from fieldname_other if present
     Object.keys(answers).forEach((key) => {
       if (Array.isArray(answers[key]) && answers[key].includes("Other") && answers[`${key}_other`]) {
         answers[key] = answers[key].map((v: string) => (v === "Other" ? answers[`${key}_other`] : v));
         delete answers[`${key}_other`];
       }
-      // Optionally handle radio fields that might be "Other" too:
       if (typeof answers[key] === "string" && answers[key] === "Other" && answers[`${key}_other`]) {
         answers[key] = answers[`${key}_other`];
         delete answers[`${key}_other`];
@@ -80,7 +81,6 @@ export function Questionnaire({
 
     try {
       if (questionnaireType === 'company' && isLinkedQuestionnaire) {
-        // First step: Create new record with company data
         const submissionJson = {
           questionnaire_type: "spaza_combined",
           company_data: answers,
@@ -95,7 +95,6 @@ export function Questionnaire({
 
         if (error) throw error;
 
-        // Save to Zustand for next step
         setRecordId(data[0].id);
         saveCompanyData(answers);
         markStepComplete('company');
@@ -103,7 +102,6 @@ export function Questionnaire({
         toast.success('Company details saved! Please complete registration.');
         
       } else if (questionnaireType === 'registration' && isLinkedQuestionnaire) {
-        // Second step: Update existing record with registration data
         const recordId = getRecordId();
         const companyData = getCompanyData();
 
@@ -133,7 +131,6 @@ export function Questionnaire({
         toast.success('All questionnaires completed successfully!');
         
       } else {
-        // Standalone questionnaire (like supplier questions)
         const submissionJson = {
           questionnaire_type: questionnaireType,
           ...answers
@@ -157,23 +154,25 @@ export function Questionnaire({
     }
   };
 
-  // Check if this step is already completed
-  const stepCompleted = isStepComplete(questionnaireType);
+  // FIXED: Only check completion status after mount
+  const stepCompleted = isMounted && isStepComplete(questionnaireType);
+  const companyStepComplete = isMounted && isStepComplete('company');
+  const registrationStepComplete = isMounted && isStepComplete('registration');
 
   return (
     <>
     <div className="font-sans items-center justify-items-center p-4 relative">
-      {/* Progress indicator for linked questionnaires */}
+      {/* FIXED: Use mounted checks for progress indicator */}
       {isLinkedQuestionnaire && (
         <div className="mb-6 max-w-2xl mx-auto">
           <div className="flex items-center justify-center space-x-8">
-            <div className={`flex items-center space-x-2 ${isStepComplete('company') ? 'text-green-600' : 'text-gray-400'}`}>
-              {isStepComplete('company') ? ' ✅' : ' ⭕'} 
-              <span>Company Details</span>
+            <div className={`flex items-center space-x-3 ${companyStepComplete ? 'text-green-600' : 'text-gray-400'}`}>
+              {companyStepComplete ? ' ✅' : ' ⭕'} 
+              <span className='pl-2'>Company Details</span>
             </div>
-            <div className={`flex items-center space-x-2 ${isStepComplete('registration') ? 'text-green-600' : 'text-gray-400'}`}>
-              {isStepComplete('registration') ? ' ✅' : ' ⭕'} 
-              <span>Registration Info</span>
+            <div className={`flex items-center space-x-3 ${registrationStepComplete ? 'text-green-600' : 'text-gray-400'}`}>
+              {registrationStepComplete ? ' ✅' : ' ⭕'} 
+              <span className='pl-2'> Registration Info</span>
             </div>
           </div>
         </div>
@@ -206,6 +205,7 @@ export function Questionnaire({
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8 max-w-2xl mx-auto p-6">
           {spazaQuestions.map((q) => (
             <div key={q.id} className="flex flex-col gap-2">
+              <h1 className='text-2xl'>{q.section}</h1>
               <label className="font-medium">{q.label}</label>
 
               {q.inputType === "text" && (
@@ -245,7 +245,6 @@ export function Questionnaire({
                       {option}
                     </label>
 
-                    {/* show free-text when "Other" is selected (safe check) */}
                     {option === "Other" && isOtherSelected(q.name) && (
                       <input
                         type="text"
@@ -260,7 +259,7 @@ export function Questionnaire({
             </div>
           ))}
 
-          <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          <button type="submit" className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 hover:cursor-pointer">
             {questionnaireType === 'company' && isLinkedQuestionnaire 
               ? 'Save & Continue to Registration' 
               : 'Submit'}
@@ -269,13 +268,14 @@ export function Questionnaire({
       )}
     </div>
 
-    {stepCompleted ?? 
-      <div className="fixed top-14 right-3 text-center mb-8 border text-gray-600 bg-green-500 rounded px-4 py-2 shadow-lg">
+    {/* FIXED: Changed ?? to && for proper conditional rendering */}
+    {!stepCompleted && (
+      <div className="fixed top-14 right-3 text-center mb-8 border  bg-green-500 rounded px-4 py-2 shadow-lg">
         <p>
           Progress: {answeredQuestions} / {totalQuestions} answered
         </p>
       </div>
-      }
+    )}
     </>
   );
 }

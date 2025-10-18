@@ -1,0 +1,30 @@
+<!-- favicon.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 100" fill="none">
+  <g id="cart-icon">
+    <!-- Cart body outline -->
+    <path
+      d="M 25 30 L 30 65 L 80 65 L 89 37"
+      stroke="#00c950"
+      stroke-width="3.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <!-- Horizontal lines inside cart -->
+    <line x1="27" y1="37" x2="86" y2="37" stroke="#00c950" stroke-width="2" stroke-linecap="round" />
+    <line x1="27.5" y1="44" x2="82.5" y2="44" stroke="#00c950" stroke-width="2" stroke-linecap="round" />
+
+    <!-- Handle -->
+    <path d="M 8 25 L 24 30" stroke="#00c950" stroke-width="3.5" stroke-linecap="round" />
+
+    <!-- Base line -->
+    <line x1="30" y1="65" x2="80" y2="65" stroke="#00c950" stroke-width="3.5" stroke-linecap="round" />
+
+    <!-- Wheels -->
+    <circle cx="37" cy="75" r="4" stroke="#00c950" stroke-width="2" fill="none" />
+    <circle cx="73" cy="75" r="4" stroke="#00c950" stroke-width="2" fill="none" />
+
+    <!-- Ground line -->
+    <line x1="15" y1="85" x2="95" y2="85" stroke="#00c950" stroke-width="2.5" stroke-linecap="round" />
+  </g>
+</svg>
