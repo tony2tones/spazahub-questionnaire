@@ -49,8 +49,30 @@ export function Questionnaire({
     return dv;
   }, [spazaQuestions]);
 	
-  const { register, handleSubmit, watch, reset } = useForm({ defaultValues });
+  const { register, handleSubmit, watch, reset, formState: { errors } } = useForm({ defaultValues });
   const watched = watch();
+
+  // Validation functions
+  const validateEmail = (value: unknown) => {
+    const email = typeof value === 'string' ? value : String(value ?? '');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email) || "Please enter a valid email address";
+  };
+
+  const validateMobile = (value: unknown) => {
+    const mobile = typeof value === 'string' ? value : String(value ?? '');
+    // Remove all non-numeric characters for validation
+    const cleanedNumber = mobile.replace(/\D/g, '');
+    
+    // South African mobile numbers: 10 digits starting with 0, or international format
+    if (cleanedNumber.startsWith('27') && cleanedNumber.length === 11) {
+      return true;
+    }
+    if (cleanedNumber.startsWith('0') && cleanedNumber.length === 10) {
+      return true;
+    }
+    return "Please enter a valid mobile number (e.g., 0821234567 or +27821234567)";
+  };
 
   const totalQuestions = spazaQuestions.length;
   const answeredQuestions = spazaQuestions.filter((q) => {
@@ -154,7 +176,6 @@ export function Questionnaire({
     }
   };
 
-  // FIXED: Only check completion status after mount
   const stepCompleted = isMounted && isStepComplete(questionnaireType);
   const companyStepComplete = isMounted && isStepComplete('company');
   const registrationStepComplete = isMounted && isStepComplete('registration');
@@ -162,7 +183,6 @@ export function Questionnaire({
   return (
     <>
     <div className="font-sans items-center justify-items-center p-4 relative">
-      {/* FIXED: Use mounted checks for progress indicator */}
       {isLinkedQuestionnaire && (
         <div className="mb-6 max-w-2xl mx-auto">
           <div className="flex items-center justify-center space-x-8">
@@ -178,23 +198,15 @@ export function Questionnaire({
         </div>
       )}
 
-      {stepCompleted && (
+      {(stepCompleted || formSubmitted) && (
         <div className='flex flex-col items-center mb-4'> 
           <div className="mb-4 p-4 bg-green-100 text-green-800 border border-green-300 rounded">
-            <p>✅ This questionnaire has already been completed!</p>
+            <p>Thank you for submitting the Company questions!</p>
           </div>
-        </div>
-      )}
-
-      {formSubmitted && (
-        <div className='flex flex-col items-center mb-4'> 
-          <div className="mb-4 p-4 bg-green-100 text-green-800 border border-green-300 rounded">
-            <p>Thank you for submitting the questionnaire!</p>
-          </div>
-          {nextStepUrl && (
-            <div>
+          {nextStepUrl && (formSubmitted || stepCompleted) &&  (
+            <div className='pt-3'>
               <Link href={nextStepUrl} className="p-4 bg-green-500 text-black rounded hover:bg-green-600">
-                Continue to Next Step
+                Click to Continue to Next Step Registration questions
               </Link>
             </div>
           )}
@@ -209,12 +221,48 @@ export function Questionnaire({
               <label className="font-medium">{q.label}</label>
 
               {q.inputType === "text" && (
-                <input
-                  {...register(q.name)}
-                  type="text"
-                  required={q.required}
-                  className="h-10 px-2 border border-gray-300 rounded"
-                />
+                <>
+                  <input
+                    {...register(q.name)}
+                    type="text"
+                    required={q.required}
+                    className="h-10 px-2 border border-gray-300 rounded"
+                  />
+                </>
+              )}
+
+              {q.inputType === "email" && (
+                <>
+                  <input
+                    {...register(q.name, {
+                      required: q.required ? "Email is required" : false,
+                      validate: validateEmail
+                    })}
+                    type="email"
+                    placeholder="example@email.com"
+                    className={`h-10 px-2 border rounded ${errors[q.name] ? 'border-red-500' : 'border-gray-300'}`}
+                  />
+                  {errors[q.name] && (
+                    <span className="text-red-500 text-sm">{errors[q.name]?.message as string}</span>
+                  )}
+                </>
+              )}
+
+              {q.inputType === "tel" && (
+                <>
+                  <input
+                    {...register(q.name, {
+                      required: q.required ? "Mobile number is required" : false,
+                      validate: validateMobile
+                    })}
+                    type="tel"
+                    placeholder="0821234567 or +27821234567"
+                    className={`h-10 px-2 border rounded ${errors[q.name] ? 'border-red-500' : 'border-gray-300'}`}
+                  />
+                  {errors[q.name] && (
+                    <span className="text-red-500 text-sm">{errors[q.name]?.message as string}</span>
+                  )}
+                </>
               )}
 
               {q.inputType === "radio" &&
@@ -259,7 +307,7 @@ export function Questionnaire({
             </div>
           ))}
 
-          <button type="submit" className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 hover:cursor-pointer">
+          <button type="submit" className="px-4 py-2 bg-green-500 text-black rounded hover:bg-green-600 hover:cursor-pointer">
             {questionnaireType === 'company' && isLinkedQuestionnaire 
               ? 'Save & Continue to Registration' 
               : 'Submit'}
@@ -268,9 +316,8 @@ export function Questionnaire({
       )}
     </div>
 
-    {/* FIXED: Changed ?? to && for proper conditional rendering */}
     {!stepCompleted && (
-      <div className="fixed top-14 right-3 text-center mb-8 border  bg-green-500 rounded px-4 py-2 shadow-lg">
+      <div className="fixed top-14 right-3 text-center mb-8 border text-black  bg-green-500 rounded px-4 py-2 shadow-lg">
         <p>
           Progress: {answeredQuestions} / {totalQuestions} answered
         </p>

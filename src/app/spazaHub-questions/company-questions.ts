@@ -20,14 +20,14 @@ export const SpazaCompanyQuestions: Question[] = [
   {
     id: "3",
     section: "",
-    name: "owner_contact_details",
+    name: "owner_contact_details_mobile",
     label: "Owner contact details (Call & Whatsapp)",
-    inputType: "text",
+    inputType: "tel",
   },
   {
     id: "4",
     section: "",
-    name: "owner_contact_details",
+    name: "owner_contact_details_email",
     label: "Email Address",
     inputType: "text",
   },
