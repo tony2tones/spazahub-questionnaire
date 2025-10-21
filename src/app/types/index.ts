@@ -4,6 +4,6 @@ export type Question = {
   name: string;
   label: string;
   options?: string[];
-  inputType: "checkbox" | "radio" | "text"; 
+  inputType: "checkbox" | "radio" | "text" | "tel" | 'email'; 
   required?: boolean;
 };
