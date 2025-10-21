@@ -24,7 +24,7 @@ export default function Home() {
         <h2 className="text-lg sm:text-xl font-semibold mb-4">
           Where to start
         </h2>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 pb-2">
           <Link
             href="/company-questions"
             className="p-3 sm:p-4 bg-green-500 text-black rounded hover:bg-green-600 transition"
@@ -38,6 +38,15 @@ export default function Home() {
             Go to Supplier and Stock Questions
           </Link>
         </div>
+
+      <hr className="border-t border-gray-300 dark:border-white w-full my-4" />
+        <h2 className="text-lg sm:text-xl font-semibold mb-4">
+          Why the questions?
+        </h2>
+        <article className="mt-6 text-left text-sm sm:text-base justify-center" 
+        >
+          The SpazaHub questionnaire is designed to understand the real needs and daily challenges of Spaza Shop owners. By gathering this information, SpazaHub aims to create practical solutions that help shop owners grow their business, access better Financial Support, and build stronger connections with suppliers. Our goal is to use these insights to drive real change and support sustainable growth within the Spaza shop industry.
+        </article>
       </div>
     </section>
   );
