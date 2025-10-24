@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Link from "next/link";
+import { ThemeProvider } from "@/components//ui/theme-provider";
 import { Toaster } from "react-hot-toast";
 import Navbar from "@/components/ui/navbar";
 
@@ -23,25 +23,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Navbar />
-        <main className="pt-16">
-        {children}
-        </main>
-            {/* <Link href="/" className="fixed top-3 left-3 bg-green-500 text-black hover:bg-green-600 rounded">
-          <div className=" text-center border text-gray-600 px-1 py-1 shadow-lg">
-                Home
-          </div> */}
-        <Toaster position="bottom-center" />
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Navbar />
+          <main className="pt-16">{children}</main>
+          <Toaster position="bottom-center" />
+        </ThemeProvider>
       </body>
     </html>
   );
