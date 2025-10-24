@@ -26,6 +26,22 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+  
+  <meta property="og:title" content="Spazahub" />
+  <meta property="og:description" content="Your app description" />
+  <meta property="og:image" content="https://spazahub-question-app.vercel.app/spazahub-logo.png" />
+  <meta property="og:url" content="https://spazahub-question-app.vercel.app/" />
+  <meta property="og:type" content="website" />
+  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Spazahub" />
+  <meta name="twitter:description" content="Your app description" />
+  <meta name="twitter:image" content="https://spazahub-question-app.vercel.app/spazahub-logo.png" />
+  
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
