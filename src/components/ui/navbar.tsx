@@ -1,3 +1,5 @@
+import { ThemeToggle } from "./theme-toggle";
+
 // components/Navbar.tsx
 export default function Navbar() {
   return (
@@ -7,6 +9,7 @@ export default function Navbar() {
       <a href="/" className="text-xl font-bold hover:text-green-500">
         Spaza<span className="text-green-500">Hub</span>
       </a>
+      <ThemeToggle />
 
       {/* Right side (links) */}
       {/* <div className="flex gap-6 mt-4 sm:mt-0"> */}
