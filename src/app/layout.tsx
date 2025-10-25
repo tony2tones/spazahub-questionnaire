@@ -18,14 +18,14 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "SpazaHub Questionnaire",
-  description: "Your app description - SpazaHub questionnaire platform",
+  description: "Support and growth with the community - SpazaHub questionnaire platform",
   icons: {
     icon: "/favicon.svg",
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
     title: "SpazaHub Questionnaire",
-    description: "Your app description - SpazaHub questionnaire platform",
+    description: "Support and growth with the community - SpazaHub questionnaire platform",
     url: "https://spazahub-question-app.vercel.app/",
     siteName: "SpazaHub",
     images: [
