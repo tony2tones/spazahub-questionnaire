@@ -1,7 +1,11 @@
+'use client';
 import CartIcon from "@/components/ui/icons/CartIcon";
+import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   return (
     <section className="flex flex-col items-center justify-center gap-8 px-4 py-8 text-center">
       {/* Title */}
@@ -48,6 +52,18 @@ export default function Home() {
           The SpazaHub questionnaire is designed to understand the real needs and daily challenges of Spaza Shop owners. By gathering this information, SpazaHub aims to create practical solutions that help shop owners grow their business, access better Financial Support, and build stronger connections with suppliers. Our goal is to use these insights to drive real change and support sustainable growth within the Spaza shop industry.
         </article>
       </div>
+      <span className="flex items-center whitespace-nowrap">
+          Spaza<span className="text-green-500">Hub</span>
+          <CartIcon width={70} height={70} color="#00c950" />
+        </span>
+      <Image 
+        src="/spazahub-logo.png"
+        alt="SpazaHub Logo"
+        width={150}
+        height={150}
+        onClick={() => router.push("/")}
+      />
+      
     </section>
   );
 }
