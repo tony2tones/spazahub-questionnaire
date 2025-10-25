@@ -8,6 +8,7 @@ import { Question } from "../types";
 import { supabase } from "../lib/superbaseClient";
 import { useQuestionnaireStore } from "@/app/store/questionnaire";
 import Button from "@/components/ui/Button";
+import LoaderComponent from "@/components/ui/LoaderRename";
 
 interface QuestionnaireProps {
   spazaQuestions: Question[];
@@ -347,6 +348,8 @@ export function Questionnaire({
               </div>
             ))}
 
+            {isLoading && <LoaderComponent isLoading={isLoading} />}
+            {!isLoading && (
             <Button
               type="submit"
               disabled={isLoading}
@@ -354,14 +357,17 @@ export function Questionnaire({
             >
               {questionnaireType === "company" && isLinkedQuestionnaire
                 ? "Save & Continue to Registration"
-                : isLoading ? "submitting" : "Submit"}
+                : isLoading
+                  ? "submitting"
+                  : "Submit"}
             </Button>
+            )}
           </form>
         )}
       </div>
 
       {!stepCompleted && (
-        <div className="fixed bottom-14 right-3 text-center mb-8 border text-black  bg-green-500 rounded px-4 py-2 shadow-lg">
+        <div className="fixed bottom-40 text-2xl right-3 text-center mb-8 border text-black  bg-green-500 rounded px-4 py-2 shadow-lg">
           <p>
             Progress: {answeredQuestions} / {totalQuestions} answered
           </p>
