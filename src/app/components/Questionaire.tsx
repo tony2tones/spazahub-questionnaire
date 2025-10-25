@@ -67,20 +67,29 @@ export function Questionnaire({
     return emailRegex.test(email) || "Please enter a valid email address";
   };
 
-  const validateMobile = (value: unknown) => {
-    const mobile = typeof value === "string" ? value : String(value ?? "");
-    // Remove all non-numeric characters for validation
-    const cleanedNumber = mobile.replace(/\D/g, "");
-
-    // South African mobile numbers: 10 digits starting with 0, or international format
-    if (cleanedNumber.startsWith("27") && cleanedNumber.length === 11) {
-      return true;
+  const validateMobile = (value: string) => {
+  // If the field is empty, it's valid (not required)
+  if (!value || value.trim() === "") {
+    return true;
+  }
+  
+  // Only validate format if a value is provided
+  const cleaned = value.replace(/\D/g, "");
+  
+  if (cleaned.startsWith("27")) {
+    if (cleaned.length !== 11) {
+      return "Mobile number must be 11 digits with country code (e.g., +27821234567)";
     }
-    if (cleanedNumber.startsWith("0") && cleanedNumber.length === 10) {
-      return true;
+  } else if (cleaned.startsWith("0")) {
+    if (cleaned.length !== 10) {
+      return "Mobile number must be 10 digits (e.g., 0821234567)";
     }
-    return "Please enter a valid mobile number (e.g., 0821234567 or +27821234567)";
-  };
+  } else {
+    return "Mobile number must start with 0 or +27";
+  }
+  
+  return true;
+};
 
   const totalQuestions = spazaQuestions.length;
   const answeredQuestions = spazaQuestions.filter((q) => {
@@ -286,13 +295,11 @@ export function Questionnaire({
                   <>
                     <input
                       {...register(q.name, {
-                        required: q.required
-                          ? "Mobile number is required"
-                          : false,
+                        required: false,
                         validate: validateMobile,
                       })}
                       type="tel"
-                      // placeholder="0821234567 or +27821234567"
+                      placeholder="0821234567 or +27821234567, optional"
                       className={`h-10 px-2 border rounded ${errors[q.name] ? "border-red-500" : "border-gray-300"}`}
                     />
                     {errors[q.name] && (
