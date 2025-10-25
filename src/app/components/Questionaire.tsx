@@ -231,7 +231,7 @@ export function Questionnaire({
                 <span className="pl-2"> Registration Info</span>
               </div>
             </div>
-            <NavMenu />
+            <NavMenu  nextStepUrl={nextStepUrl} />
           </div>
         )}
 
