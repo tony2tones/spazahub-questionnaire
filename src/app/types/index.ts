@@ -3,6 +3,7 @@ export type Question = {
   section: string;
   name: string;
   label: string;
+  placeholder?: string;
   options?: string[];
   inputType: "checkbox" | "radio" | "text" | "tel" | 'email'; 
   required?: boolean;
