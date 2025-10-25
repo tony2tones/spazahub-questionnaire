@@ -22,6 +22,8 @@ export const SpazaCompanyQuestions: Question[] = [
     section: "",
     name: "owner_contact_details_mobile",
     label: "Owner contact details (Call & Whatsapp)",
+    placeholder: "optional",
+    required: false,
     inputType: "tel",
   },
   {
@@ -29,6 +31,7 @@ export const SpazaCompanyQuestions: Question[] = [
     section: "",
     name: "owner_contact_details_email",
     label: "Email Address",
+    required: false,
     inputType: "text",
   },
   {
