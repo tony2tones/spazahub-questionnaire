@@ -9,6 +9,7 @@ import { supabase } from "../lib/superbaseClient";
 import { useQuestionnaireStore } from "@/app/store/questionnaire";
 import Button from "@/components/ui/Button";
 import LoaderComponent from "@/components/ui/LoaderRename";
+import NavMenu from "@/components/ui/NavMenu";
 
 interface QuestionnaireProps {
   spazaQuestions: Question[];
@@ -67,29 +68,30 @@ export function Questionnaire({
     return emailRegex.test(email) || "Please enter a valid email address";
   };
 
-  const validateMobile = (value: string) => {
-  // If the field is empty, it's valid (not required)
-  if (!value || value.trim() === "") {
+  const validateMobile = (value: unknown) => {
+    const v = typeof value === "string" ? value : String(value ?? "");
+    // If the field is empty, it's valid (not required)
+    if (!v || v.trim() === "") {
+      return true;
+    }
+
+    // Only validate format if a value is provided
+    const cleaned = v.replace(/\D/g, "");
+
+    if (cleaned.startsWith("27")) {
+      if (cleaned.length !== 11) {
+        return "Mobile number must be 11 digits with country code (e.g., +27821234567)";
+      }
+    } else if (cleaned.startsWith("0")) {
+      if (cleaned.length !== 10) {
+        return "Mobile number must be 10 digits (e.g., 0821234567)";
+      }
+    } else {
+      return "Mobile number must start with 0 or +27";
+    }
+
     return true;
-  }
-  
-  // Only validate format if a value is provided
-  const cleaned = value.replace(/\D/g, "");
-  
-  if (cleaned.startsWith("27")) {
-    if (cleaned.length !== 11) {
-      return "Mobile number must be 11 digits with country code (e.g., +27821234567)";
-    }
-  } else if (cleaned.startsWith("0")) {
-    if (cleaned.length !== 10) {
-      return "Mobile number must be 10 digits (e.g., 0821234567)";
-    }
-  } else {
-    return "Mobile number must start with 0 or +27";
-  }
-  
-  return true;
-};
+  };
 
   const totalQuestions = spazaQuestions.length;
   const answeredQuestions = spazaQuestions.filter((q) => {
@@ -229,6 +231,7 @@ export function Questionnaire({
                 <span className="pl-2"> Registration Info</span>
               </div>
             </div>
+            <NavMenu />
           </div>
         )}
 
@@ -237,16 +240,6 @@ export function Questionnaire({
             <div className="mb-4 p-4 bg-green-100 text-green-800 border border-green-300 rounded">
               <p>Thank you for submitting the Company questions!</p>
             </div>
-            {nextStepUrl && (formSubmitted || stepCompleted) && (
-              <div className="pt-3">
-                <Link
-                  href={nextStepUrl}
-                  className="p-4 bg-green-500 text-black rounded hover:bg-green-600"
-                >
-                  Click to Continue to Next Step Registration questions
-                </Link>
-              </div>
-            )}
           </div>
         )}
 
@@ -357,17 +350,17 @@ export function Questionnaire({
 
             {isLoading && <LoaderComponent isLoading={isLoading} />}
             {!isLoading && (
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className={`px-4 py-2 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              {questionnaireType === "company" && isLinkedQuestionnaire
-                ? "Save & Continue to Registration"
-                : isLoading
-                  ? "submitting"
-                  : "Submit"}
-            </Button>
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className={`px-4 py-2 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                {questionnaireType === "company" && isLinkedQuestionnaire
+                  ? "Save & Continue to Registration"
+                  : isLoading
+                    ? "submitting"
+                    : "Submit"}
+              </Button>
             )}
           </form>
         )}

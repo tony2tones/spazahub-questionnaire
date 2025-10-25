@@ -1,6 +1,7 @@
 import { Questionnaire } from "@/app/components/Questionaire";
 import { SpazaSupplierQuestions } from "../spazaHub-questions/supplier-questions";
 import CartIcon from "@/components/ui/icons/CartIcon";
+import NavMenu from "@/components/ui/NavMenu";
 
 export default function SupplierQuestionsPage() {
   return (
@@ -18,6 +19,9 @@ export default function SupplierQuestionsPage() {
           isLinkedQuestionnaire={false}
           nextStepUrl="/"
           />
+          <div className="flex justify-center align-middle w-3xs">
+          <NavMenu />
+          </div>
     </div>
   );
 }
